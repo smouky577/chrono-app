@@ -1,0 +1,140 @@
+<resources>
+    <string name="app_name">Chrono app</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="orga_chrono">Orga Chrono</string>
+    <string name="trajectory">Traiettoria</string>
+    <string name="history">Cronologia</string>
+    <string name="export">Esporta</string>
+    <string name="settings">Impostazioni</string>
+    
+    <string name="bb_weight_label">PESO BB (g)</string>
+    <string name="diablo_weight_label">PESO DIABLO (g)</string>
+    <string name="custom_weight_label">PESO PERS. (g)</string>
+    <string name="velocity_trend">ANDAMENTO VELOCITÀ</string>
+    <string name="no_shots_yet">Ancora nessun colpo registrato</string>
+    
+    <string name="joule_grid_title">Griglia di riferimento Joule</string>
+    <string name="latest_shot">ULTIMO COLPO</string>
+    <string name="max_practical_weight">PESO MASSIMO PRATICO AMMESSO</string>
+    <string name="room_to_limit">con il %.1f%% di margine al limite</string>
+    <string name="over_limit">OLTRE IL LIMITE</string>
+    <string name="too_hot_for_20">Troppo potente anche per 0.20g</string>
+    <string name="orga_limits">Limiti Orga</string>
+    <string name="max_allowed_joule_label">Joule massimi ammessi (J)</string>
+    <string name="no_weights_orga">Nessun peso disponibile. Controlla le impostazioni.</string>
+    
+    <string name="trajectory_sim">Simulazione traiettoria</string>
+    <string name="side_view_label">VISTA LATERALE (m/cm) - TOCCA PER INFO</string>
+    <string name="target_view_label">VISTA BERSAGLIO (@ %.0f m)</string>
+    <string name="optimization_limit">Limite ottimizzazione</string>
+    <string name="max_overhop">Overhop max: %.0f cm</string>
+    <string name="optimize_hopup">OTTIMIZZA HOP-UP</string>
+    <string name="powered_by">Calcolatore balistico a cura di GWC Airsoft Team Leipzig.</string>
+    
+    <string name="export_session">Esporta rapporto sessione</string>
+    <string name="export_desc">Genera un rapporto PDF professionale della sessione corrente.</string>
+    <string name="report_settings">IMPOSTAZIONI RAPPORTO</string>
+    <string name="shots_to_include">Colpi da includere</string>
+    <string name="gun_name_label">Nome arma (opzionale)</string>
+    <string name="pdf_report_title">Rapporto ChronoMate</string>
+    <string name="pdf_gun_label">Arma: %s</string>
+    <string name="pdf_date_label">Data: %s</string>
+    <string name="pdf_total_shots">Totale colpi nel rapporto: %d</string>
+    <string name="pdf_velocity_header">Velocità (m/s)</string>
+    <string name="pdf_energy_header">Energia (J)</string>
+    <string name="includes_desc">Include: elenco completo colpi, peso, velocità, energia, statistiche min/max/avg e grafico andamento energia.</string>
+    <string name="generate_pdf">GENERA RAPPORTO PDF</string>
+    <string name="no_shots_session">Nessun colpo registrato in questa sessione.</string>
+    
+    <string name="no_history">Nessuna cronologia disponibile</string>
+    
+    <string name="general_settings">Impostazioni generali</string>
+    <string name="dark_mode">Modalità scura</string>
+    <string name="dark_mode_desc">Passa dal tema chiaro a quello scuro</string>
+    <string name="keep_screen_on">Mantieni schermo acceso</string>
+    <string name="keep_screen_on_desc">Impedisce al dispositivo di andare in sospensione durante l\'uso</string>
+    <string name="language">Lingua</string>
+    <string name="restart_required_desc">Riavvio richiesto per applicare il cambio lingua</string>
+    <string name="ballistics_engine_params">Parametri motore balistico</string>
+    <string name="fine_tune_physics">Regola le costanti della simulazione fisica</string>
+
+    <string name="weight_config_title">Configurazione pesi</string>
+    <string name="weight_type_bbs">Pallini (BBs)</string>
+    <string name="weight_type_diablos">Diablo</string>
+    <string name="weight_type_custom">Personalizzato</string>
+    <string name="custom_weights_list">Elenco pesi personalizzati</string>
+    <string name="no_custom_weights">Nessun peso personalizzato aggiunto</string>
+    <string name="weight_name_label">Nome</string>
+    <string name="weight_value_label">Peso (g)</string>
+    <string name="caliber_label">Calibro</string>
+    <string name="add_row_button">Aggiungi riga</string>
+    <string name="no_custom_weights_dashboard">Nessun peso personalizzato definito. Vai in Impostazioni.</string>
+    <string name="no_custom_weights_ballistics">Nessun peso personalizzato definito.</string>
+
+    <string name="stat_average">MEDIA</string>
+    <string name="stat_max">MAX</string>
+    <string name="stat_min">MIN</string>
+    <string name="stat_es">EXTREME SPREAD</string>
+    <string name="stat_sd">DEVIAZIONE STANDARD</string>
+    <string name="stat_rof">ROF</string>
+    <string name="stat_eff_range">Gittata eff.</string>
+    <string name="stat_max_range">Gittata max</string>
+    <string name="stat_hold_over">Hold-over</string>
+    <string name="stat_target_e">E. bersaglio</string>
+    <string name="stat_max_oh">Overhop max</string>
+    <string name="stat_oh_dist">Dist. OH</string>
+
+    <string name="ballistic_diameter">Diametro (mm)</string>
+    <string name="ballistic_air_density">Densità aria (rho)</string>
+    <string name="ballistic_drag_coeff">Coeff. aerodinamico (Cw)</string>
+    <string name="ballistic_magnus_coeff">Coefficiente Magnus (K)</string>
+    <string name="ballistic_spin_damping">Smorzamento rotazione (Cr)</string>
+    <string name="ballistic_gravity">Gravità (m/s²)</string>
+
+    <string name="target_distance_label">Distanza bersaglio: %.0f m</string>
+    <string name="shooter_h_label">Alt. tiratore (m)</string>
+    <string name="target_h_label">Alt. bersaglio (m)</string>
+    <string name="speed_label">Velocità: %.1f m/s</string>
+    <string name="energy_label">Energia: %.2f J</string>
+    <string name="hopup_label">Hop-Up: %.0f rad/s</string>
+    <string name="sight_h_label">Alt. mirino: %.1f cm</string>
+
+    <string name="hit_above">COLPITO: %.1f cm SOPRA</string>
+    <string name="hit_below">COLPITO: %.1f cm SOTTO</string>
+    <string name="probe_dist">Dist: %.1f m</string>
+    <string name="probe_time">Tempo: %.2f s</string>
+    <string name="probe_height">Altezza: %.1f cm</string>
+    <string name="probe_energy">Energia: %.2f J</string>
+    <string name="probe_rel_impact">Impatt. rel.: %.1f cm</string>
+    <string name="probe_holdover">Hold-over: %.1f cm</string>
+
+    <string name="calibration_title">Calibrazione</string>
+    <string name="calibration_desc">Calibra il tuo chrono rispetto a una fonte affidabile.</string>
+    <string name="comp_mode_label">Modalità compensazione</string>
+    <string name="comp_mode_none">Nessuna compensazione</string>
+    <string name="comp_mode_median">Compensazione mediana (Fiducia paritaria)</string>
+    <string name="comp_mode_external">Fiducia chrono esterno</string>
+    <string name="start_calibration">INIZIA CALIBRAZIONE</string>
+    <string name="stop_calibration">FERMA CALIBRAZIONE</string>
+    <string name="clear_calibration">CANCELLA DATI</string>
+    <string name="chrono_val_header">HT-X (m/s)</string>
+    <string name="control_val_header">Controllo (m/s)</string>
+    <string name="comp_factor_display">Fattore attuale: %.3f</string>
+    <string name="chrono_settings">Impostazioni Chrono</string>
+    <string name="select_chrono">Seleziona modello cronografo</string>
+    <string name="ht_x3000">HT-X3006</string>
+    <string name="ht_50">HT-50</string>
+    <string name="permissions_required_msg">I permessi di posizione sono necessari per connettersi al Wi-Fi del cronografo.</string>
+
+    <!-- Connection status -->
+    <string name="status_disconnected">Non connesso</string>
+    <string name="status_connecting">Connessione…</string>
+    <string name="status_waiting">In attesa dei dati del crono…</string>
+    <string name="status_connected">Connesso al crono</string>
+    <string name="status_failed">Connessione non riuscita</string>
+    <string name="badge_live">LIVE</string>
+    <string name="badge_connecting">CONNESSIONE…</string>
+    <string name="badge_waiting">NESSUN DATO - TOCCA</string>
+    <string name="badge_offline">OFFLINE - TOCCA PER CONNETTERE</string>
+    <string name="badge_failed">ERRORE - TOCCA PER RIPROVARE</string>
+</resources>

@@ -1,0 +1,140 @@
+<resources>
+    <string name="app_name">Chrono app</string>
+    <string name="dashboard">Панель</string>
+    <string name="orga_chrono">Хроно Орга</string>
+    <string name="trajectory">Траєкторія</string>
+    <string name="history">Історія</string>
+    <string name="export">Експорт</string>
+    <string name="settings">Налаштування</string>
+    
+    <string name="bb_weight_label">ВАГА КУЛІ (г)</string>
+    <string name="diablo_weight_label">ВАГА DIABLO (г)</string>
+    <string name="custom_weight_label">ВЛАСНА ВАГА (г)</string>
+    <string name="velocity_trend">ТРЕНД ШВИДКОСТІ</string>
+    <string name="no_shots_yet">Поки не зареєстровано жодного пострілу</string>
+    
+    <string name="joule_grid_title">Довідкова таблиця Джоулів</string>
+    <string name="latest_shot">ОСТАННІЙ ПОСТРІЛ</string>
+    <string name="max_practical_weight">МАКС. ДОПУСТИМА ПРАКТИЧНА ВАГА</string>
+    <string name="room_to_limit">із запасом %.1f%% до ліміту</string>
+    <string name="over_limit">ПЕРЕВИЩЕННЯ ЛІМІТУ</string>
+    <string name="too_hot_for_20">Занадто потужно навіть для 0.20г</string>
+    <string name="orga_limits">Організіційні ліміти</string>
+    <string name="max_allowed_joule_label">Макс. допустимі Джоулі (Дж)</string>
+    <string name="no_weights_orga">Ваги не вибрані. Перевірте налаштування.</string>
+    
+    <string name="trajectory_sim">Симуляція траєкторії</string>
+    <string name="side_view_label">ВИГЛЯД ЗБОКУ (м/см) - НАТИСНІТЬ ДЛЯ ДЕТАЛЕЙ</string>
+    <string name="target_view_label">ВИГЛЯД ЦІЛІ (@ %.0f м)</string>
+    <string name="optimization_limit">Ліміт оптимізації</string>
+    <string name="max_overhop">Макс. оверхоп: %.0f см</string>
+    <string name="optimize_hopup">ОПТИМІЗУВАТИ ХОП-АП</string>
+    <string name="powered_by">Балістичний калькулятор на базі GWC Airsoft Team Leipzig.</string>
+    
+    <string name="export_session">Експорт звіту сесії</string>
+    <string name="export_desc">Створіть професійний PDF-звіт вашої поточної сесії.</string>
+    <string name="report_settings">НАЛАШТУВАННЯ ЗВІТУ</string>
+    <string name="shots_to_include">Кількість пострілів</string>
+    <string name="gun_name_label">Назва зброї (опціонально)</string>
+    <string name="pdf_report_title">Звіт ChronoMate</string>
+    <string name="pdf_gun_label">Зброя: %s</string>
+    <string name="pdf_date_label">Дата: %s</string>
+    <string name="pdf_total_shots">Всього пострілів у звіті: %d</string>
+    <string name="pdf_velocity_header">Швидкість (м/с)</string>
+    <string name="pdf_energy_header">Енергія (Дж)</string>
+    <string name="includes_desc">Включає: Повний список пострілів, вагу, швидкість, енергію, статистику min/max/avg та графік тренду.</string>
+    <string name="generate_pdf">ЗГЕНЕРУВАТИ PDF-ЗВІТ</string>
+    <string name="no_shots_session">У цій сесії пострілів не зареєстровано.</string>
+    
+    <string name="no_history">Історія недоступна</string>
+    
+    <string name="general_settings">Загальні налаштування</string>
+    <string name="dark_mode">Темна тема</string>
+    <string name="dark_mode_desc">Перемикання між світлою та темною темами</string>
+    <string name="keep_screen_on">Тримати екран увімкненим</string>
+    <string name="keep_screen_on_desc">Запобігає переходу пристрою в режим сну під час використання програми</string>
+    <string name="language">Мова</string>
+    <string name="restart_required_desc">Для застосування мови потрібен перезапуск</string>
+    <string name="ballistics_engine_params">Параметри балістичного двигуна</string>
+    <string name="fine_tune_physics">Тонке налаштування фізичних констант</string>
+
+    <string name="weight_config_title">Конфігурація ваги</string>
+    <string name="weight_type_bbs">Кулі (BB)</string>
+    <string name="weight_type_diablos">Diablo</string>
+    <string name="weight_type_custom">Власна</string>
+    <string name="custom_weights_list">Список власних ваг</string>
+    <string name="no_custom_weights">Власних ваг не додано</string>
+    <string name="weight_name_label">Назва</string>
+    <string name="weight_value_label">Вага (г)</string>
+    <string name="caliber_label">Калібр</string>
+    <string name="add_row_button">Додати рядок</string>
+    <string name="no_custom_weights_dashboard">Власних ваг не визначено. Перейдіть до Налаштувань.</string>
+    <string name="no_custom_weights_ballistics">Власних ваг не визначено.</string>
+
+    <string name="stat_average">СЕРЕДНЄ</string>
+    <string name="stat_max">МАКС.</string>
+    <string name="stat_min">МІН.</string>
+    <string name="stat_es">РОЗКИД (ES)</string>
+    <string name="stat_sd">СТАНД. ВІДХИЛЕННЯ</string>
+    <string name="stat_rof">СКОРОСТРІЛЬНІСТЬ</string>
+    <string name="stat_eff_range">Ефект. дальність</string>
+    <string name="stat_max_range">Макс. дальність</string>
+    <string name="stat_hold_over">Поправка (Hold-over)</string>
+    <string name="stat_target_e">Енергія цілі</string>
+    <string name="stat_max_oh">Макс. оверхоп</string>
+    <string name="stat_oh_dist">Дистанція OH</string>
+
+    <string name="ballistic_diameter">Діаметр (мм)</string>
+    <string name="ballistic_air_density">Щільність повітря (rho)</string>
+    <string name="ballistic_drag_coeff">Коеф. опору (Cw)</string>
+    <string name="ballistic_magnus_coeff">Коеф. Магнуса (K)</string>
+    <string name="ballistic_spin_damping">Затухання обертання (Cr)</string>
+    <string name="ballistic_gravity">Гравітація (м/с²)</string>
+
+    <string name="target_distance_label">Відстань до цілі: %.0f м</string>
+    <string name="shooter_h_label">Висота стрільця (м)</string>
+    <string name="target_h_label">Висота цілі (м)</string>
+    <string name="speed_label">Швидкість: %.1f м/с</string>
+    <string name="energy_label">Енергія: %.2f Дж</string>
+    <string name="hopup_label">Хоп-ап: %.0f рад/с</string>
+    <string name="sight_h_label">Висота прицілу: %.1f см</string>
+
+    <string name="hit_above">ВЛУЧАННЯ: %.1f см ВИЩЕ</string>
+    <string name="hit_below">ВЛУЧАННЯ: %.1f см НИЖЧЕ</string>
+    <string name="probe_dist">Відст: %.1f м</string>
+    <string name="probe_time">Час: %.2f s</string>
+    <string name="probe_height">Висота: %.1f см</string>
+    <string name="probe_energy">Енергія: %.2f Дж</string>
+    <string name="probe_rel_impact">Відносне влуч.: %.1f см</string>
+    <string name="probe_holdover">Поправка: %.1f см</string>
+
+    <string name="calibration_title">Калібрування</string>
+    <string name="calibration_desc">Відкалібруйте свій хроно за допомогою перевіреного джерела.</string>
+    <string name="comp_mode_label">Режим компенсації</string>
+    <string name="comp_mode_none">Без компенсації</string>
+    <string name="comp_mode_median">Медіанна компенсація (Рівна довіра)</string>
+    <string name="comp_mode_external">Довіра зовнішньому хроно</string>
+    <string name="start_calibration">ПОЧАТИ КАЛІБРУВАННЯ</string>
+    <string name="stop_calibration">ЗУПИНИТИ КАЛІБРУВАННЯ</string>
+    <string name="clear_calibration">ОЧИСТИТИ ДАНІ</string>
+    <string name="chrono_val_header">HT-X (м/с)</string>
+    <string name="control_val_header">Контроль (м/с)</string>
+    <string name="comp_factor_display">Поточний фактор: %.3f</string>
+    <string name="chrono_settings">Налаштування хронографа</string>
+    <string name="select_chrono">Оберіть модель хронографа</string>
+    <string name="ht_x3000">HT-X3006</string>
+    <string name="ht_50">HT-50</string>
+    <string name="permissions_required_msg">Дозволи на доступ до місцезнаходження потрібні для підключення до Wi-Fi хронографа.</string>
+
+    <!-- Connection status -->
+    <string name="status_disconnected">Не підключено</string>
+    <string name="status_connecting">Підключення…</string>
+    <string name="status_waiting">Очікування даних хронографа…</string>
+    <string name="status_connected">Підключено до хронографа</string>
+    <string name="status_failed">Помилка підключення</string>
+    <string name="badge_live">НАЖИВО</string>
+    <string name="badge_connecting">ПІДКЛЮЧЕННЯ…</string>
+    <string name="badge_waiting">НЕМАЄ ДАНИХ - ТОРКНІТЬСЯ</string>
+    <string name="badge_offline">ОФЛАЙН - ТОРКНІТЬСЯ, ЩОБ ПІДКЛЮЧИТИСЯ</string>
+    <string name="badge_failed">ПОМИЛКА - ТОРКНІТЬСЯ ДЛЯ ПОВТОРУ</string>
+</resources>

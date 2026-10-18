@@ -1,0 +1,334 @@
+package com.example.chronomate.ui.screens
+
+import androidx.compose.animation.*
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
+import com.example.chronomate.R
+import com.example.chronomate.model.CalibrationEntry
+import com.example.chronomate.model.ChronoData
+import com.example.chronomate.model.CompensationMode
+import com.example.chronomate.viewmodel.ChronoViewModel
+
+@Composable
+fun SettingsScreen(data: ChronoData, viewModel: ChronoViewModel) {
+    val scrollState = rememberScrollState()
+    val context = LocalContext.current
+    var showLanguageDialog by remember { mutableStateOf(false) }
+    var calibrationExpanded by remember { mutableStateOf(false) }
+    
+    val languages = remember {
+        listOf(
+            Triple("English", "en", "English"),
+            Triple("Deutsch", "de", "Deutsch"),
+            Triple("Polski", "pl", "Polski"),
+            Triple("Italiano", "it", "Italiano"),
+            Triple("Español", "es", "Español"),
+            Triple("Nederlands", "nl", "Nederlands"),
+            Triple("日本語", "ja", "日本語"),
+            Triple("繁體中文", "zh-rTW", "繁體中文"),
+            Triple("简体中文", "zh-rCN", "简体中文"),
+            Triple("Українська", "uk", "Українська"),
+            Triple("Norsk", "no", "Norsk"),
+            Triple("Svenska", "sv", "Svenska"),
+            Triple("Dansk", "da", "Dansk")
+        ).sortedBy { it.first }
+    }
+
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(scrollState)) {
+        Text(stringResource(R.string.general_settings), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Spacer(modifier = Modifier.height(24.dp))
+        
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.dark_mode), style = MaterialTheme.typography.titleMedium)
+            Text(
+                stringResource(R.string.dark_mode_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Switch(
+                checked = data.isDarkMode,
+                onCheckedChange = { viewModel.toggleDarkMode(context, it) }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Text(stringResource(R.string.keep_screen_on), style = MaterialTheme.typography.titleMedium)
+            Text(
+                stringResource(R.string.keep_screen_on_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Switch(
+                checked = data.keepScreenOn,
+                onCheckedChange = { viewModel.toggleKeepScreenOn(context, it) }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        ListItem(
+            headlineContent = { Text(stringResource(R.string.language)) },
+            supportingContent = { 
+                Text(languages.find { it.second == data.language }?.first ?: "English") 
+            },
+            leadingContent = { Icon(Icons.Default.Language, contentDescription = null) },
+            modifier = Modifier.clickable { showLanguageDialog = true }
+        )
+        
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Chrono Selection
+        Text(stringResource(R.string.chrono_settings), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.select_chrono), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(modifier = Modifier.height(12.dp))
+
+        var chronoExpanded by remember { mutableStateOf(false) }
+        Box(modifier = Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                onClick = { chronoExpanded = true },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(when(data.chronoType) {
+                    com.example.chronomate.model.ChronoType.HT_X3000 -> stringResource(R.string.ht_x3000)
+                    com.example.chronomate.model.ChronoType.HT_50 -> stringResource(R.string.ht_50)
+                })
+                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+            }
+            DropdownMenu(expanded = chronoExpanded, onDismissRequest = { chronoExpanded = false }) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.ht_x3000)) },
+                    onClick = { 
+                        viewModel.setChronoType(context, com.example.chronomate.model.ChronoType.HT_X3000)
+                        chronoExpanded = false 
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.ht_50)) },
+                    onClick = { 
+                        viewModel.setChronoType(context, com.example.chronomate.model.ChronoType.HT_50)
+                        chronoExpanded = false 
+                    }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Calibration Section
+        Text(stringResource(R.string.calibration_title), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.calibration_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                var expandedMode by remember { mutableStateOf(false) }
+                Text(stringResource(R.string.comp_mode_label), style = MaterialTheme.typography.labelMedium)
+                Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)) {
+                    OutlinedButton(
+                        onClick = { expandedMode = true },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(when(data.compensationMode) {
+                            CompensationMode.NONE -> stringResource(R.string.comp_mode_none)
+                            CompensationMode.MEDIAN -> stringResource(R.string.comp_mode_median)
+                            CompensationMode.TRUST_EXTERNAL -> stringResource(R.string.comp_mode_external)
+                        })
+                        Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                    }
+                    DropdownMenu(expanded = expandedMode, onDismissRequest = { expandedMode = false }) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.comp_mode_none)) },
+                            onClick = { viewModel.setCompensationMode(context, CompensationMode.NONE); expandedMode = false }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.comp_mode_median)) },
+                            onClick = { viewModel.setCompensationMode(context, CompensationMode.MEDIAN); expandedMode = false }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(R.string.comp_mode_external)) },
+                            onClick = { viewModel.setCompensationMode(context, CompensationMode.TRUST_EXTERNAL); expandedMode = false }
+                        )
+                    }
+                }
+
+                if (data.compensationMode != CompensationMode.NONE) {
+                    Text(
+                        text = stringResource(R.string.comp_factor_display).format(data.compensationFactor),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(
+                        onClick = { if (data.isCalibrationActive) viewModel.stopCalibration() else viewModel.startCalibration() },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (data.isCalibrationActive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                        )
+                    ) {
+                        Icon(if (data.isCalibrationActive) Icons.Default.Stop else Icons.Default.PlayArrow, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(if (data.isCalibrationActive) stringResource(R.string.stop_calibration) else stringResource(R.string.start_calibration))
+                    }
+                    
+                    OutlinedButton(
+                        onClick = { viewModel.clearCalibration(context) },
+                        modifier = Modifier.weight(0.6f)
+                    ) {
+                        Text(stringResource(R.string.clear_calibration))
+                    }
+                }
+
+                if (data.calibrationEntries.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Row(modifier = Modifier.fillMaxWidth().clickable { calibrationExpanded = !calibrationExpanded }.padding(vertical = 8.dp), 
+                        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("${data.calibrationEntries.size} Entries", style = MaterialTheme.typography.titleSmall)
+                        Icon(if (calibrationExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore, contentDescription = null)
+                    }
+
+                    AnimatedVisibility(visible = calibrationExpanded) {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            Row(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Text(stringResource(R.string.chrono_val_header), modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                                Text(stringResource(R.string.control_val_header), modifier = Modifier.weight(1f), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                                Spacer(modifier = Modifier.width(48.dp))
+                            }
+                            data.calibrationEntries.asReversed().forEachIndexed { index, entry ->
+                                val realIndex = data.calibrationEntries.size - 1 - index
+                                CalibrationRow(
+                                    entry = entry,
+                                    onUpdateControl = { viewModel.updateCalibrationControlValue(context, realIndex, it) },
+                                    onDelete = { viewModel.removeCalibrationEntry(context, realIndex) }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(32.dp))
+        Text("Chrono app v1.0", modifier = Modifier.align(Alignment.CenterHorizontally), style = MaterialTheme.typography.labelSmall)
+        Spacer(modifier = Modifier.height(16.dp))
+    }
+
+    if (showLanguageDialog) {
+        AlertDialog(
+            onDismissRequest = { showLanguageDialog = false },
+            title = { Text(stringResource(R.string.language)) },
+            text = {
+                Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                    languages.forEach { (name, code, _) ->
+                        LanguageOption(name, code, data.language) {
+                            viewModel.setLanguage(context, code)
+                            showLanguageDialog = false
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = stringResource(R.string.restart_required_desc),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showLanguageDialog = false }) {
+                    Text("Close")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun CalibrationRow(
+    entry: CalibrationEntry,
+    onUpdateControl: (Float?) -> Unit,
+    onDelete: () -> Unit
+) {
+    var textFieldValue by remember(entry.controlValue) { 
+        mutableStateOf(TextFieldValue(
+            text = entry.controlValue?.toString() ?: "",
+            selection = TextRange(entry.controlValue?.toString()?.length ?: 0)
+        )) 
+    }
+    
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = "%.1f".format(entry.chronoValue),
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.bodyMedium
+        )
+        
+        TextField(
+            value = textFieldValue,
+            onValueChange = {
+                textFieldValue = it
+                onUpdateControl(it.text.toFloatOrNull())
+            },
+            modifier = Modifier.weight(1f).height(48.dp),
+            textStyle = MaterialTheme.typography.bodySmall,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            singleLine = true,
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent
+            )
+        )
+        
+        IconButton(onClick = onDelete) {
+            Icon(Icons.Default.Close, contentDescription = "Delete", tint = MaterialTheme.colorScheme.outline)
+        }
+    }
+}
+
+@Composable
+fun LanguageOption(label: String, code: String, currentCode: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(selected = code == currentCode, onClick = null)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(label)
+    }
+}
+
