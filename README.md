@@ -4,6 +4,37 @@
 
 # Chrono app
 
+Android приложение за Wi‑Fi хронографи **HT-X3006 / HT-50**.
+
+Направено върху [ChronoMate](https://github.com/Rec0iL/ChronoMate), опростено за ползване на полето: жива скорост, енергия по теглото от хронографа, история на изстрелите и PDF експорт.
+
+## Възможности
+
+- Свързва се към Wi‑Fi хотспота на хронографа и чете изстрелите на живо
+- Взима теглото на снаряда от уреда (не се въвежда ръчно в приложението)
+- Табло с последен изстрел, енергия, статистики и графика на скоростта
+- История и PDF отчет на сесията
+- По желание калибрация спрямо втори хронограф
+- Тъмна / светла тема и опция екранът да не гасне
+
+## Инсталация
+
+Свали APK-то от **Releases** и го инсталирай на телефона. Ако Android попита, разреши инсталация от този файл.
+
+## Свързване с хронографа
+
+1. Включи Wi‑Fi на HT-X3006 (задръж долния бутон, докато се появи Wi‑Fi).
+2. На телефона се свържи към хотспот **HT-X3000**, парола `88888888`.
+3. Отвори **Chrono app** и натисни значката за връзка, ако още не е на живо.
+
+## Компилация
+
+Проектът е за `compileSdk 34` и Gradle 8.7. Отвори папката в Android Studio или изпълни `gradle assembleDebug`.
+
+---
+
+# Chrono app (English)
+
 Android companion app for **HT-X3006 / HT-50** Wi‑Fi chronographs.
 
 Based on [ChronoMate](https://github.com/Rec0iL/ChronoMate), simplified for field use: live velocity, energy from the chronograph’s projectile weight, shot history, and PDF export.
@@ -29,4 +60,4 @@ Download the APK from **Releases** and install it on the phone. Allow installati
 
 ## Build
 
-The project uses the same Android SDK/JDK layout as the other local apps (`compileSdk 34`, Gradle 8.7). Open the folder in Android Studio or run `gradle assembleDebug`.
+The project uses `compileSdk 34` and Gradle 8.7. Open the folder in Android Studio or run `gradle assembleDebug`.
