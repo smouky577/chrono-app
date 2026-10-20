@@ -24,6 +24,12 @@ data class CalibrationEntry(
     val controlValue: Float? = null
 )
 
+data class ShotSession(
+    val id: String,
+    val createdAtMillis: Long,
+    val shots: List<Shot>
+)
+
 enum class ChronoType(val ssid: String, val displayName: String) {
     HT_X3000("HT-X3000", "HT-X3006"),
     HT_50("HT50", "HT-50")
@@ -78,7 +84,8 @@ data class ChronoData(
     val compensationMode: CompensationMode = CompensationMode.NONE,
     val calibrationEntries: List<CalibrationEntry> = emptyList(),
     val isCalibrationActive: Boolean = false,
-    val compensationFactor: Float = 1.0f
+    val compensationFactor: Float = 1.0f,
+    val savedSessions: List<ShotSession> = emptyList()
 ) {
     /** Derived - the app is "connected" exactly when the chrono is talking to us. */
     val isConnected: Boolean get() = connectionState == ConnectionState.CONNECTED

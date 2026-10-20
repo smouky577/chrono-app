@@ -1,4 +1,4 @@
-package com.example.chronomate.viewmodel
+﻿package com.example.chronomate.viewmodel
 
 import android.app.Activity
 import android.content.ContentValues
@@ -38,6 +38,7 @@ import kotlin.math.pow
 import kotlin.math.sqrt
 
 class ChronoViewModel(context: Context) : ViewModel() {
+    private val appContext = context.applicationContext
     private val _uiState = MutableStateFlow(ChronoData())
     val uiState = _uiState.asStateFlow()
 
@@ -94,6 +95,17 @@ class ChronoViewModel(context: Context) : ViewModel() {
 
         val compMode = CompensationMode.valueOf(prefs.getString("comp_mode", CompensationMode.NONE.name) ?: CompensationMode.NONE.name)
         val chronoType = ChronoType.valueOf(prefs.getString("chrono_type", ChronoType.HT_X3000.name) ?: ChronoType.HT_X3000.name)
+        val savedSessions = parseSessions(prefs.getString("saved_sessions", "") ?: "")
+        val currentShots = parseShots(prefs.getString("current_shots", "") ?: "")
+        val velocities = currentShots.map { it.velocity }
+        val avg = if (velocities.isNotEmpty()) velocities.average().toFloat() else 0f
+        val max = if (velocities.isNotEmpty()) velocities.maxOrNull() ?: 0f else 0f
+        val min = if (velocities.isNotEmpty()) velocities.minOrNull() ?: 0f else 0f
+        val es = if (velocities.isNotEmpty()) max - min else 0f
+        val varVal = if (velocities.size > 1) {
+            val mean = velocities.average()
+            velocities.sumOf { (it - mean).pow(2.0) }.toFloat() / velocities.size
+        } else 0f
 
         _uiState.update { it.copy(
             isDarkMode = prefs.getBoolean("dark_mode", true),
@@ -101,7 +113,18 @@ class ChronoViewModel(context: Context) : ViewModel() {
             language = prefs.getString("language", "en") ?: "en",
             compensationMode = compMode,
             calibrationEntries = calibrationEntries,
-            chronoType = chronoType
+            chronoType = chronoType,
+            savedSessions = savedSessions,
+            shots = currentShots,
+            velocity = currentShots.lastOrNull()?.velocity?.let { v -> "%.2f".format(v) } ?: "0.00",
+            currentEnergy = currentShots.lastOrNull()?.energyJoules ?: 0f,
+            selectedWeight = currentShots.lastOrNull()?.weightGrams ?: it.selectedWeight,
+            averageVelocity = avg,
+            maxVelocity = max,
+            minVelocity = min,
+            extremeSpread = es,
+            standardDeviation = sqrt(varVal),
+            variance = varVal
         ) }
         
         updateCompensationFactor()
@@ -130,6 +153,82 @@ class ChronoViewModel(context: Context) : ViewModel() {
         }
         savePreference(context, "calibration_entries", serialized)
         savePreference(context, "comp_mode", state.compensationMode.name)
+    }
+
+    private fun serializeShot(shot: Shot) =
+        "${shot.rawVelocity},${shot.weightGrams},${shot.compensationFactor}"
+
+    private fun parseShot(raw: String): Shot? {
+        val parts = raw.split(",")
+        if (parts.size < 2) return null
+        val velocity = parts[0].toFloatOrNull() ?: return null
+        val weight = parts[1].toFloatOrNull() ?: return null
+        val factor = parts.getOrNull(2)?.toFloatOrNull() ?: 1f
+        return Shot(velocity, weight, factor)
+    }
+
+    private fun parseShots(raw: String): List<Shot> =
+        if (raw.isBlank()) emptyList() else raw.split(";").mapNotNull { parseShot(it) }
+
+    private fun serializeSessions(sessions: List<ShotSession>) =
+        sessions.joinToString("\n") { session ->
+            listOf(
+                session.id,
+                session.createdAtMillis.toString(),
+                session.shots.joinToString(";") { serializeShot(it) }
+            ).joinToString("|")
+        }
+
+    private fun parseSessions(raw: String): List<ShotSession> {
+        if (raw.isBlank()) return emptyList()
+        return raw.split("\n").mapNotNull { line ->
+            val parts = line.split("|", limit = 3)
+            if (parts.size < 3) return@mapNotNull null
+            val createdAt = parts[1].toLongOrNull() ?: return@mapNotNull null
+            if (parts[0].isBlank()) return@mapNotNull null
+            ShotSession(parts[0], createdAt, parseShots(parts[2]))
+        }
+    }
+
+    private fun persistSessions(sessions: List<ShotSession>) {
+        savePreference(appContext, "saved_sessions", serializeSessions(sessions))
+    }
+
+    private fun persistCurrentShots(shots: List<Shot>) {
+        savePreference(appContext, "current_shots", shots.joinToString(";") { serializeShot(it) })
+    }
+
+    private fun parkLiveSession(shots: List<Shot>, existing: List<ShotSession>): List<ShotSession> {
+        if (shots.isEmpty()) return existing
+        val session = ShotSession(
+            id = UUID.randomUUID().toString(),
+            createdAtMillis = System.currentTimeMillis(),
+            shots = shots.toList()
+        )
+        return (listOf(session) + existing).take(50)
+    }
+
+    private fun startFreshLiveSession() {
+        val current = _uiState.value
+        val sessions = parkLiveSession(current.shots, current.savedSessions)
+        lastSeenRawShots = emptyList()
+        _uiState.update {
+            it.copy(
+                savedSessions = sessions,
+                shots = emptyList(),
+                velocity = "0.00",
+                fireRate = "0.0",
+                averageVelocity = 0f,
+                maxVelocity = 0f,
+                minVelocity = 0f,
+                extremeSpread = 0f,
+                standardDeviation = 0f,
+                variance = 0f,
+                currentEnergy = 0f
+            )
+        }
+        persistSessions(sessions)
+        persistCurrentShots(emptyList())
     }
 
     fun toggleDarkMode(context: Context, enabled: Boolean) {
@@ -305,12 +404,12 @@ class ChronoViewModel(context: Context) : ViewModel() {
 
             val request = requestBuilder.build()
 
-            // A deliberate reconnect starts a fresh link: forget the old address and
-            // the shots we have already seen on the previous device.
+            // A deliberate reconnect starts a fresh live session: park the previous
+            // shots in History and ignore the device's already stored list.
             boundToChronoAp = false
             chronoUrl = null
             missedPolls = 0
-            lastSeenRawShots = emptyList()
+            startFreshLiveSession()
             setConnectionState(ConnectionState.CONNECTING)
 
             val callback = object : ConnectivityManager.NetworkCallback() {
@@ -543,17 +642,37 @@ class ChronoViewModel(context: Context) : ViewModel() {
         val liveVelocity = parseLiveVelocity(text)
         val rawShots = chronologicalShots(parseShotVelocities(text), liveVelocity)
 
+        val previousSessions = _uiState.value.savedSessions
+        val previousShots = _uiState.value.shots
+        var sessionsToPersist: List<ShotSession>? = null
+        var shotsToPersist: List<Shot>? = null
+
         _uiState.update { current ->
             val currentSessionShots = current.shots.toMutableList()
             val currentCalibrationEntries = current.calibrationEntries.toMutableList()
             val currentWeight = parsedWeight ?: current.selectedWeight
             var updatedLastSeen = lastSeenRawShots
+            var savedSessions = current.savedSessions
 
             if (rawShots.isNotEmpty() && rawShots != lastSeenRawShots) {
                 var newShotsToAdd = emptyList<Float>()
-                
+
                 if (lastSeenRawShots.isEmpty()) {
-                    newShotsToAdd = rawShots
+                    // New connection: park app shots and the device's already stored
+                    // list as History sessions. Live graph starts empty.
+                    if (currentSessionShots.isNotEmpty()) {
+                        savedSessions = parkLiveSession(currentSessionShots, savedSessions)
+                        currentSessionShots.clear()
+                    }
+                    val deviceShots = rawShots.map { vel ->
+                        Shot(
+                            rawVelocity = vel,
+                            weightGrams = currentWeight,
+                            compensationFactor = current.compensationFactor
+                        )
+                    }
+                    savedSessions = parkLiveSession(deviceShots, savedSessions)
+                    newShotsToAdd = emptyList()
                 } else {
                     for (i in rawShots.size downTo 0) {
                         val head = rawShots.take(i)
@@ -565,14 +684,14 @@ class ChronoViewModel(context: Context) : ViewModel() {
                         }
                     }
                 }
-                
+
                 newShotsToAdd.forEach { vel ->
                     currentSessionShots.add(Shot(
-                        rawVelocity = vel, 
-                        weightGrams = currentWeight, 
+                        rawVelocity = vel,
+                        weightGrams = currentWeight,
                         compensationFactor = current.compensationFactor
                     ))
-                    
+
                     if (current.isCalibrationActive && currentCalibrationEntries.size < 100) {
                         currentCalibrationEntries.add(CalibrationEntry(vel))
                     }
@@ -583,30 +702,29 @@ class ChronoViewModel(context: Context) : ViewModel() {
             lastSeenRawShots = updatedLastSeen
 
             val latestShot = currentSessionShots.lastOrNull()
-            val liveDisplay = liveVelocity?.let { it * current.compensationFactor }
-            val displayVelocity = liveDisplay ?: latestShot?.velocity
-            val currentVelocityString = displayVelocity?.let { "%.2f".format(it) } ?: "0.00"
-            val currentEnergy = when {
-                liveDisplay != null -> 0.5f * (currentWeight / 1000f) * liveDisplay.pow(2)
-                else -> latestShot?.energyJoules ?: 0f
-            }
+            val currentVelocityString = latestShot?.velocity?.let { "%.2f".format(it) } ?: "0.00"
+            val currentEnergy = latestShot?.energyJoules ?: 0f
 
             val velocities = currentSessionShots.map { it.velocity }
             val avg = if (velocities.isNotEmpty()) velocities.average().toFloat() else 0f
             val max = if (velocities.isNotEmpty()) velocities.maxOrNull() ?: 0f else 0f
             val min = if (velocities.isNotEmpty()) velocities.minOrNull() ?: 0f else 0f
             val es = if (velocities.isNotEmpty()) max - min else 0f
-            
+
             val varVal = if (velocities.size > 1) {
                 val mean = velocities.average()
                 velocities.sumOf { (it - mean).pow(2.0) }.toFloat() / velocities.size
             } else 0f
             val sd = sqrt(varVal)
 
+            sessionsToPersist = savedSessions
+            shotsToPersist = currentSessionShots.toList()
+
             current.copy(
                 velocity = currentVelocityString,
                 fireRate = fireRate,
                 shots = currentSessionShots,
+                savedSessions = savedSessions,
                 calibrationEntries = currentCalibrationEntries,
                 averageVelocity = avg,
                 maxVelocity = max,
@@ -618,6 +736,11 @@ class ChronoViewModel(context: Context) : ViewModel() {
                 selectedWeight = currentWeight
             )
         }
+
+        val newSessions = sessionsToPersist
+        val newShots = shotsToPersist
+        if (newSessions != null && newSessions != previousSessions) persistSessions(newSessions)
+        if (newShots != null && newShots != previousShots) persistCurrentShots(newShots)
     }
 
     fun exportToPdf(context: Context, shotCount: Int, gunName: String = "") {
@@ -857,10 +980,10 @@ class ChronoViewModel(context: Context) : ViewModel() {
         const val MAX_MISSED_POLLS = 3
 
         val FIRE_RATE_REGEX = "(?i)(?:firerate|fire rate|射速)[^0-9]*(\\d+(?:\\.\\d+)?)".toRegex()
-        val WEIGHT_REGEX = "(?i)(?:weight|wgt|mass|pellet|тегло|重量)[^0-9]*(\\d+(?:[.,]\\d+)?)".toRegex()
-        val VELOCITY_REGEX = "(?i)(?:velocity|speed|скорост|速度)[^0-9]*(\\d+(?:[.,]\\d+)?)".toRegex()
+        val WEIGHT_REGEX = "(?i)(?:weight|wgt|mass|pellet|тегло|重量|弹重)[^0-9]*(\\d+(?:[.,]\\d+)?)".toRegex()
+        val VELOCITY_REGEX = "(?i)(?:velocity|speed|скорост|速度|初速)[^0-9]*(\\d+(?:[.,]\\d+)?)".toRegex()
         val SHOT_REGEX = "(?<![\\d.])(\\d{1,3})\\s*[:：]\\s*(\\d+(?:[.,]\\d+)?)".toRegex()
-        const val MIN_VELOCITY = 2f
+        const val MIN_VELOCITY = 0.05f
         const val MAX_VELOCITY = 1500f
 
         /** Markers that only a chronograph page will carry. */

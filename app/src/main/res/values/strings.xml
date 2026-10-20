@@ -48,6 +48,12 @@
     <string name="no_shots_session">No shots recorded in this session yet.</string>
     
     <string name="no_history">No history available</string>
+    <string name="history_new">New</string>
+    <string name="history_old">Old</string>
+    <string name="session_title">Сесия - %s</string>
+    <string name="no_saved_sessions">No saved sessions</string>
+    <string name="session_shot_count">%d shots</string>
+    <string name="history_back">Back</string>
     
     <string name="general_settings">General Settings</string>
     <string name="dark_mode">Dark Mode</string>
