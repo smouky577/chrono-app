@@ -33,6 +33,7 @@ import org.jsoup.Jsoup
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -511,17 +512,36 @@ class ChronoViewModel(context: Context) : ViewModel() {
             ?.takeIf { it in 0.01f..99.99f }
     }
 
+    private fun parseLiveVelocity(text: String): Float? {
+        return VELOCITY_REGEX.find(text)?.groupValues?.get(1)
+            ?.replace(',', '.')
+            ?.toFloatOrNull()
+            ?.takeIf { it in MIN_VELOCITY..MAX_VELOCITY }
+    }
+
+    private fun parseShotVelocities(text: String): List<Float> {
+        return SHOT_REGEX.findAll(text)
+            .mapNotNull { it.groupValues[2].replace(',', '.').toFloatOrNull() }
+            .filter { it in MIN_VELOCITY..MAX_VELOCITY }
+            .toList()
+    }
+
+    private fun chronologicalShots(raw: List<Float>, live: Float?): List<Float> {
+        if (raw.isEmpty()) return if (live != null) listOf(live) else emptyList()
+        if (live == null || raw.size == 1) return raw
+        val dFirst = abs(raw.first() - live)
+        val dLast = abs(raw.last() - live)
+        return if (dFirst + 0.05f < dLast) raw.asReversed() else raw
+    }
+
     private fun parseHtml(html: String) {
         val doc = Jsoup.parse(html)
         val text = doc.text()
 
         val fireRate = FIRE_RATE_REGEX.find(text)?.groupValues?.get(1) ?: "0.0"
         val parsedWeight = parseWeightGrams(doc, text)
-
-        val rawShots = SHOT_REGEX.findAll(text)
-            .map { it.groupValues[2].toFloat() }
-            .filter { it > 0.0f }
-            .toList()
+        val liveVelocity = parseLiveVelocity(text)
+        val rawShots = chronologicalShots(parseShotVelocities(text), liveVelocity)
 
         _uiState.update { current ->
             val currentSessionShots = current.shots.toMutableList()
@@ -563,8 +583,13 @@ class ChronoViewModel(context: Context) : ViewModel() {
             lastSeenRawShots = updatedLastSeen
 
             val latestShot = currentSessionShots.lastOrNull()
-            val currentVelocityString = latestShot?.velocity?.let { "%.2f".format(it) } ?: "0.00"
-            val currentEnergy = latestShot?.energyJoules ?: 0f
+            val liveDisplay = liveVelocity?.let { it * current.compensationFactor }
+            val displayVelocity = liveDisplay ?: latestShot?.velocity
+            val currentVelocityString = displayVelocity?.let { "%.2f".format(it) } ?: "0.00"
+            val currentEnergy = when {
+                liveDisplay != null -> 0.5f * (currentWeight / 1000f) * liveDisplay.pow(2)
+                else -> latestShot?.energyJoules ?: 0f
+            }
 
             val velocities = currentSessionShots.map { it.velocity }
             val avg = if (velocities.isNotEmpty()) velocities.average().toFloat() else 0f
@@ -833,7 +858,10 @@ class ChronoViewModel(context: Context) : ViewModel() {
 
         val FIRE_RATE_REGEX = "(?i)(?:firerate|fire rate|射速)[^0-9]*(\\d+(?:\\.\\d+)?)".toRegex()
         val WEIGHT_REGEX = "(?i)(?:weight|wgt|mass|pellet|тегло|重量)[^0-9]*(\\d+(?:[.,]\\d+)?)".toRegex()
-        val SHOT_REGEX = "(\\d{2})\\s*[:：]\\s*(\\d+(?:\\.\\d+)?)".toRegex()
+        val VELOCITY_REGEX = "(?i)(?:velocity|speed|скорост|速度)[^0-9]*(\\d+(?:[.,]\\d+)?)".toRegex()
+        val SHOT_REGEX = "(?<![\\d.])(\\d{1,3})\\s*[:：]\\s*(\\d+(?:[.,]\\d+)?)".toRegex()
+        const val MIN_VELOCITY = 2f
+        const val MAX_VELOCITY = 1500f
 
         /** Markers that only a chronograph page will carry. */
         val CHRONO_MARKER_REGEX = "(?i)(m/s|fps|ft/s|速度|射速|chrono)".toRegex()
