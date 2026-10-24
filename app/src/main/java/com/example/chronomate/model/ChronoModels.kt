@@ -96,4 +96,5 @@ sealed class Screen(val route: String, val titleResId: Int, val icon: ImageVecto
     object History : Screen("history", R.string.history, Icons.Default.History)
     object Export : Screen("export", R.string.export, Icons.Default.PictureAsPdf)
     object Settings : Screen("settings", R.string.settings, Icons.Default.Settings)
+    object About : Screen("about", R.string.about, Icons.Default.Info)
 }

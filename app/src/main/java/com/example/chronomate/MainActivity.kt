@@ -11,10 +11,8 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -23,8 +21,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -34,8 +30,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chronomate.model.Screen
-import com.example.chronomate.ui.components.LogoImage
+import com.example.chronomate.ui.components.DrawerBrandHeader
 import com.example.chronomate.ui.components.StatusBadge
+import com.example.chronomate.ui.screens.AboutScreen
 import com.example.chronomate.ui.screens.DashboardScreen
 import com.example.chronomate.ui.screens.HistoryScreen
 import com.example.chronomate.ui.screens.SettingsScreen
@@ -139,7 +136,8 @@ fun ChronoApp(viewModel: ChronoViewModel) {
         Screen.Dashboard,
         Screen.History,
         Screen.Export,
-        Screen.Settings
+        Screen.Settings,
+        Screen.About
     )
     val currentScreen = screens.find { it.route == currentRoute } ?: Screen.Dashboard
     
@@ -154,23 +152,7 @@ fun ChronoApp(viewModel: ChronoViewModel) {
                         .fillMaxHeight()
                         .verticalScroll(rememberScrollState())
                 ) {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .size(100.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color.Black),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        LogoImage(modifier = Modifier.fillMaxSize())
-                    }
-                    Text(
-                        stringResource(R.string.app_name),
-                        modifier = Modifier.padding(16.dp),
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold
-                    )
+                    DrawerBrandHeader()
                     HorizontalDivider()
                     Spacer(modifier = Modifier.height(8.dp))
                     
@@ -219,9 +201,10 @@ fun ChronoApp(viewModel: ChronoViewModel) {
             Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
                 when (currentScreen) {
                     Screen.Dashboard -> DashboardScreen(data)
-                    Screen.History -> HistoryScreen(data)
+                    Screen.History -> HistoryScreen(data, viewModel)
                     Screen.Export -> ExportScreen(data, viewModel)
                     Screen.Settings -> SettingsScreen(data, viewModel)
+                    Screen.About -> AboutScreen()
                 }
             }
         }

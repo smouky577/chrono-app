@@ -658,20 +658,12 @@ class ChronoViewModel(context: Context) : ViewModel() {
                 var newShotsToAdd = emptyList<Float>()
 
                 if (lastSeenRawShots.isEmpty()) {
-                    // New connection: park app shots and the device's already stored
-                    // list as History sessions. Live graph starts empty.
+                    // New connection: keep the shots the app recorded, then ignore the
+                    // list already stored on the chronograph. Only later shots are live.
                     if (currentSessionShots.isNotEmpty()) {
                         savedSessions = parkLiveSession(currentSessionShots, savedSessions)
                         currentSessionShots.clear()
                     }
-                    val deviceShots = rawShots.map { vel ->
-                        Shot(
-                            rawVelocity = vel,
-                            weightGrams = currentWeight,
-                            compensationFactor = current.compensationFactor
-                        )
-                    }
-                    savedSessions = parkLiveSession(deviceShots, savedSessions)
                     newShotsToAdd = emptyList()
                 } else {
                     for (i in rawShots.size downTo 0) {
@@ -743,10 +735,18 @@ class ChronoViewModel(context: Context) : ViewModel() {
         if (newShots != null && newShots != previousShots) persistCurrentShots(newShots)
     }
 
-    fun exportToPdf(context: Context, shotCount: Int, gunName: String = "") {
+    fun exportToPdf(
+        context: Context,
+        shotCount: Int,
+        gunName: String = "",
+        shots: List<Shot>? = null,
+        includeGraph: Boolean = true,
+        reportAtMillis: Long? = null
+    ) {
         viewModelScope.launch {
             val data = _uiState.value
-            val shotsToExport = data.shots.takeLast(shotCount)
+            val shotsToExport = shots ?: data.shots.takeLast(shotCount)
+            val numberingFromSessionStart = shots != null
             
             if (shotsToExport.isEmpty()) {
                 withContext(Dispatchers.Main) {
@@ -798,7 +798,8 @@ class ChronoViewModel(context: Context) : ViewModel() {
                     }
 
                     val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-                    currentCanvas.drawText(context.getString(R.string.pdf_date_label, dateFormat.format(Date())), 40f, y, bodyPaint)
+                    val reportDate = Date(reportAtMillis ?: System.currentTimeMillis())
+                    currentCanvas.drawText(context.getString(R.string.pdf_date_label, dateFormat.format(reportDate)), 40f, y, bodyPaint)
                     y += 20f
                     currentCanvas.drawText(context.getString(R.string.pdf_total_shots, shotsToExport.size), 40f, y, bodyPaint)
 
@@ -829,10 +830,13 @@ class ChronoViewModel(context: Context) : ViewModel() {
                     y += 25f
                     currentCanvas.drawText("${context.getString(R.string.stat_es)}: %.1f m/s".format(es), col1, y, bodyPaint)
                     currentCanvas.drawText("${context.getString(R.string.stat_sd)}: %.2f m/s".format(sd), col2, y, bodyPaint)
-                    currentCanvas.drawText("${context.getString(R.string.stat_rof)}: ${data.fireRate} r/m", col3, y, bodyPaint)
+                    if (shots == null) {
+                        currentCanvas.drawText("${context.getString(R.string.stat_rof)}: ${data.fireRate} r/m", col3, y, bodyPaint)
+                    }
 
                     // Graph Section
                     y += 50f
+                    if (includeGraph) {
                     currentCanvas.drawText(context.getString(R.string.velocity_trend), 40f, y, headerPaint)
                     y += 20f
 
@@ -887,6 +891,7 @@ class ChronoViewModel(context: Context) : ViewModel() {
                     currentCanvas.drawPath(path, graphPaint)
 
                     y += graphHeight + 45f
+                    }
 
                     // Table Header
                     currentCanvas.drawRect(40f, y, 555f, y + 20f, Paint().apply { color = Color.LTGRAY; alpha = 50 })
@@ -917,8 +922,11 @@ class ChronoViewModel(context: Context) : ViewModel() {
                         }
 
                         val shot = shotsToExport[index]
-                        // shotNum relative to the session
-                        val shotNum = (data.shots.size - shotsToExport.size) + index + 1
+                        val shotNum = if (numberingFromSessionStart) {
+                            index + 1
+                        } else {
+                            (data.shots.size - shotsToExport.size) + index + 1
+                        }
                         currentCanvas.drawText("%02d".format(shotNum), 50f, y, bodyPaint)
                         currentCanvas.drawText("%.2f".format(shot.weightGrams), 100f, y, bodyPaint)
                         currentCanvas.drawText("%.1f".format(shot.velocity), 250f, y, bodyPaint)

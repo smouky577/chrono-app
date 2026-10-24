@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +31,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -37,15 +39,19 @@ import com.example.chronomate.R
 import com.example.chronomate.model.ChronoData
 import com.example.chronomate.model.Shot
 import com.example.chronomate.model.ShotSession
+import com.example.chronomate.ui.components.ShotChart
 import com.example.chronomate.ui.components.ShotRow
+import com.example.chronomate.viewmodel.ChronoViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @Composable
-fun HistoryScreen(data: ChronoData) {
+fun HistoryScreen(data: ChronoData, viewModel: ChronoViewModel) {
+    val context = LocalContext.current
     var showOld by rememberSaveable { mutableStateOf(false) }
     var openSessionId by rememberSaveable { mutableStateOf<String?>(null) }
+    var showGraphic by rememberSaveable(openSessionId) { mutableStateOf(false) }
     val openSession = data.savedSessions.firstOrNull { it.id == openSessionId }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -86,8 +92,12 @@ fun HistoryScreen(data: ChronoData) {
         }
 
         when {
-            !showOld -> ShotList(shots = data.shots, emptyText = stringResource(R.string.no_history))
-            openSession != null -> Column(modifier = Modifier.fillMaxSize()) {
+            !showOld -> ShotList(
+                shots = data.shots,
+                emptyText = stringResource(R.string.no_history),
+                modifier = Modifier.weight(1f)
+            )
+            openSession != null -> Column(modifier = Modifier.weight(1f).fillMaxWidth()) {
                 TextButton(
                     onClick = { openSessionId = null },
                     modifier = Modifier.padding(horizontal = 8.dp)
@@ -102,25 +112,73 @@ fun HistoryScreen(data: ChronoData) {
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                 )
-                ShotList(shots = openSession.shots, emptyText = stringResource(R.string.no_history))
+                if (openSession.shots.isNotEmpty()) {
+                    OutlinedButton(
+                        onClick = { showGraphic = !showGraphic },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Text(
+                            stringResource(
+                                if (showGraphic) R.string.hide_graphic else R.string.view_graphic
+                            )
+                        )
+                    }
+                    Button(
+                        onClick = {
+                            viewModel.exportToPdf(
+                                context = context,
+                                shotCount = openSession.shots.size,
+                                shots = openSession.shots,
+                                includeGraph = showGraphic,
+                                reportAtMillis = openSession.createdAtMillis
+                            )
+                        },
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 4.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Text(stringResource(R.string.export))
+                    }
+                }
+                if (showGraphic) {
+                    ShotChart(
+                        shots = openSession.shots,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .height(220.dp)
+                            .fillMaxWidth()
+                    )
+                }
+                ShotList(
+                    shots = openSession.shots,
+                    emptyText = stringResource(R.string.no_history),
+                    modifier = Modifier.weight(1f)
+                )
             }
             else -> SessionList(
                 sessions = data.savedSessions,
-                onOpen = { openSessionId = it.id }
+                onOpen = { openSessionId = it.id },
+                modifier = Modifier.weight(1f)
             )
         }
     }
 }
 
 @Composable
-private fun ShotList(shots: List<Shot>, emptyText: String) {
+private fun ShotList(
+    shots: List<Shot>,
+    emptyText: String,
+    modifier: Modifier = Modifier.fillMaxSize()
+) {
     if (shots.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(modifier = modifier, contentAlignment = Alignment.Center) {
             Text(emptyText, style = MaterialTheme.typography.bodyLarge)
         }
     } else {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier,
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
             items(shots.asReversed().mapIndexed { index, shot -> index to shot }) { (reversedIndex, shot) ->
@@ -132,14 +190,18 @@ private fun ShotList(shots: List<Shot>, emptyText: String) {
 }
 
 @Composable
-private fun SessionList(sessions: List<ShotSession>, onOpen: (ShotSession) -> Unit) {
+private fun SessionList(
+    sessions: List<ShotSession>,
+    onOpen: (ShotSession) -> Unit,
+    modifier: Modifier = Modifier.fillMaxSize()
+) {
     if (sessions.isEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(modifier = modifier, contentAlignment = Alignment.Center) {
             Text(stringResource(R.string.no_saved_sessions), style = MaterialTheme.typography.bodyLarge)
         }
     } else {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier,
             contentPadding = PaddingValues(bottom = 16.dp)
         ) {
             items(sessions, key = { it.id }) { session ->
