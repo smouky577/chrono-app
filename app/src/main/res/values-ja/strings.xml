@@ -36,7 +36,7 @@
     <string name="report_settings">レポート設定</string>
     <string name="shots_to_include">含めるショット数</string>
     <string name="gun_name_label">銃器名（任意）</string>
-    <string name="pdf_report_title">ChronoMate レポート</string>
+    <string name="pdf_report_title">Chrono app by Dr. Baysinger</string>
     <string name="pdf_gun_label">銃器: %s</string>
     <string name="pdf_date_label">日付: %s</string>
     <string name="pdf_total_shots">レポート内ショット総数: %d</string>

@@ -44,7 +44,7 @@
     <string name="report_settings">REPORT SETTINGS</string>
     <string name="shots_to_include">Shots to include</string>
     <string name="gun_name_label">Gun Name (optional)</string>
-    <string name="pdf_report_title">ChronoMate Report</string>
+    <string name="pdf_report_title">Chrono app by Dr. Baysinger</string>
     <string name="pdf_gun_label">Gun: %s</string>
     <string name="pdf_date_label">Date: %s</string>
     <string name="pdf_total_shots">Total Shots in Report: %d</string>

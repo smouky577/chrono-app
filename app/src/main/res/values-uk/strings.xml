@@ -36,7 +36,7 @@
     <string name="report_settings">НАЛАШТУВАННЯ ЗВІТУ</string>
     <string name="shots_to_include">Кількість пострілів</string>
     <string name="gun_name_label">Назва зброї (опціонально)</string>
-    <string name="pdf_report_title">Звіт ChronoMate</string>
+    <string name="pdf_report_title">Chrono app by Dr. Baysinger</string>
     <string name="pdf_gun_label">Зброя: %s</string>
     <string name="pdf_date_label">Дата: %s</string>
     <string name="pdf_total_shots">Всього пострілів у звіті: %d</string>

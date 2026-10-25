@@ -36,7 +36,7 @@
     <string name="report_settings">BERICHT-EINSTELLUNGEN</string>
     <string name="shots_to_include">Einzuschließende Schüsse</string>
     <string name="gun_name_label">Name der Waffe (optional)</string>
-    <string name="pdf_report_title">ChronoMate Bericht</string>
+    <string name="pdf_report_title">Chrono app by Dr. Baysinger</string>
     <string name="pdf_gun_label">Waffe: %s</string>
     <string name="pdf_date_label">Datum: %s</string>
     <string name="pdf_total_shots">Gesamtanzahl Schüsse im Bericht: %d</string>

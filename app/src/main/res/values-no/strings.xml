@@ -36,7 +36,7 @@
     <string name="report_settings">RAPPORTINNSTILLINGER</string>
     <string name="shots_to_include">Skudd som skal inkluderes</string>
     <string name="gun_name_label">Våpennavn (valgfritt)</string>
-    <string name="pdf_report_title">ChronoMate-rapport</string>
+    <string name="pdf_report_title">Chrono app by Dr. Baysinger</string>
     <string name="pdf_gun_label">Våpen: %s</string>
     <string name="pdf_date_label">Dato: %s</string>
     <string name="pdf_total_shots">Totalt antall skudd i rapporten: %d</string>
