@@ -32,7 +32,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.chronomate.model.Screen
 import com.example.chronomate.ui.components.DrawerBrandHeader
 import com.example.chronomate.ui.components.StatusBadge
-import com.example.chronomate.ui.screens.AboutScreen
 import com.example.chronomate.ui.screens.DashboardScreen
 import com.example.chronomate.ui.screens.HistoryScreen
 import com.example.chronomate.ui.screens.SettingsScreen
@@ -136,8 +135,7 @@ fun ChronoApp(viewModel: ChronoViewModel) {
         Screen.Dashboard,
         Screen.History,
         Screen.Export,
-        Screen.Settings,
-        Screen.About
+        Screen.Settings
     )
     val currentScreen = screens.find { it.route == currentRoute } ?: Screen.Dashboard
     
@@ -204,7 +202,6 @@ fun ChronoApp(viewModel: ChronoViewModel) {
                     Screen.History -> HistoryScreen(data, viewModel)
                     Screen.Export -> ExportScreen(data, viewModel)
                     Screen.Settings -> SettingsScreen(data, viewModel)
-                    Screen.About -> AboutScreen()
                 }
             }
         }

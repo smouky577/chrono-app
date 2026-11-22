@@ -1,6 +1,13 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+}
+
+val keystoreProperties = Properties().apply {
+    load(FileInputStream(rootProject.file("keystore.properties")))
 }
 
 android {
@@ -8,18 +15,28 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.chronomate"
+        applicationId = "com.drbaysinger.chrono"
         minSdk = 30
         targetSdk = 34
-        versionCode = 9
-        versionName = "1.0.9"
+        versionCode = 10
+        versionName = "1.0.10"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file(keystoreProperties.getProperty("storeFile"))
+            storePassword = keystoreProperties.getProperty("storePassword")
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

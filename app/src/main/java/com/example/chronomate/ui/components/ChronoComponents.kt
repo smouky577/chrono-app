@@ -1,9 +1,15 @@
 package com.example.chronomate.ui.components
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -37,6 +43,8 @@ import com.example.chronomate.model.Shot
 fun DrawerBrandHeader(modifier: Modifier = Modifier) {
     val isLight = MaterialTheme.colorScheme.surface.red > 0.9f
     val streak = if (isLight) Color(0xFF2E7D32) else Color(0xFF88FF11)
+    var about by remember { mutableStateOf(false) }
+    if (about) AboutDialog { about = false }
 
     Column(
         modifier = modifier
@@ -78,9 +86,58 @@ fun DrawerBrandHeader(modifier: Modifier = Modifier) {
             text = stringResource(R.string.drawer_credit),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier
+                .padding(top = 8.dp)
+                .clickable { about = true }
         )
     }
+}
+
+private const val ABOUT_EN = "Donate to Dr. Baysinger. He promises to spend it on hookers and beer."
+private const val ABOUT_BG = "Дарете на Dr. Baysinger. Той обещава да ги изхарчи за курви и бело."
+private const val REVOLUT = "revolut.me/georgi09qc"
+private val BTC = listOf(
+    "bc1qr84akpfry7sjs6759wwq722fyert9apcarpst6",
+    "bc1p6hp5q20u9t9upsjt7425wgqdrs0cr8wnnlf9atu24z92pzsnq85q62uc8e",
+)
+
+@Composable
+private fun AboutDialog(onClose: () -> Unit) {
+    val context = LocalContext.current
+    val accent = MaterialTheme.colorScheme.primary
+    AlertDialog(
+        onDismissRequest = onClose,
+        confirmButton = {
+            TextButton(onClick = onClose) { Text("OK", color = accent) }
+        },
+        title = { Text("About", fontWeight = FontWeight.Bold) },
+        text = {
+            Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+                Text(ABOUT_EN)
+                Text(ABOUT_BG, modifier = Modifier.padding(top = 12.dp))
+                Text("Revolut", fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 20.dp))
+                CopyLine(REVOLUT, context, accent)
+                Text("BTC address", fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 16.dp))
+                BTC.forEach { CopyLine(it, context, accent) }
+            }
+        },
+    )
+}
+
+@Composable
+private fun CopyLine(value: String, context: Context, accent: Color) {
+    Text(
+        value,
+        color = accent,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                clipboard.setPrimaryClip(ClipData.newPlainText("address", value))
+                Toast.makeText(context, "Copied", Toast.LENGTH_SHORT).show()
+            }
+            .padding(vertical = 6.dp),
+    )
 }
 
 @Composable

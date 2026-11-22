@@ -14,3 +14,6 @@ local.properties
 *.apk
 .kotlin/
 gradle/config.properties
+*.jks
+*.keystore
+keystore.properties
